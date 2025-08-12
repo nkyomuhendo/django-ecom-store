@@ -8,6 +8,21 @@ from .forms import SignUpForm, UpdateUserForm, ChangePasswordForm, UserInfoForm
 from django import forms
 
 
+def search(request):
+    # Determine if they filled out the form
+    if request.method == "POST":
+        searched = request.POST['searched']
+        # Query The Products DB model 
+        searched = Product.objects.filter(name__icontains=searched)
+        # Test for Null
+        if not searched:
+            messages.success(request, "That Product Does Not Exist... Please try again!!!")
+            return render(request, "search.html", {})
+        else:
+            return render(request, "search.html", {'searched': searched})
+    else:
+        return render(request, "search.html", {})
+
 def update_info(request):
     if request.user.is_authenticated:
         current_user = Profile.objects.get(user__id=request.user.id)
