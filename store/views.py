@@ -7,6 +7,8 @@ from django.contrib.auth.forms import UserCreationForm
 from .forms import SignUpForm, UpdateUserForm, ChangePasswordForm, UserInfoForm
 from django import forms
 from django.db.models import Q
+import json
+from cart.cart import Cart
 
 
 def search(request):
@@ -129,6 +131,27 @@ def login_user(request):
 
         if user is not None:
             login(request, user)
+
+            # Do some shopping cart stuff
+            current_user = Profile.objects.get(user__id=request.user.id)
+            # Get their saved cat from database
+            saved_cart = current_user.old_cart
+            # Convert database string to python dictionary
+            if saved_cart:
+                # Convert to dictionary using JSON --> string to dict conversation
+                # Rmbr this string format {"4": 4, "9": 5} as saved in our db
+                converted_cart = json.loads(saved_cart)
+                # Add loaded cart dictionary to our session
+                cart = Cart(request)
+                # Loop through the cart and add the items from the database -> {"4": 4, "9": 5}
+                for key, value in converted_cart.items():
+                    cart.db_add(product=key, quantity=value)
+
+
+
+
+
+
             messages.success(request, ("You have Been Logged In Successfully..."))
             return redirect('home')
         else:
