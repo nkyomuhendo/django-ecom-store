@@ -53,7 +53,7 @@ class OrderItem(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
 
-    qauntity = models.PositiveBigIntegerField(default=1)
+    quantity = models.PositiveBigIntegerField(default=1)
     price = models.DecimalField(max_digits=7, decimal_places=2)
 
     def __str__(self):
