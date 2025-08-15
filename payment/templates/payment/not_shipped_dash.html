@@ -24,10 +24,10 @@
     {%for item in orders %}
     <tr>
 
-      <td>{{item.id}}</td>
-      <td>${{item.amount_paid}}</td>
-      <td>{{item.email}}</td>
-      <td>{{item.date_ordered}}</td>
+      <td><a href="{% url 'orders' item.id %}">{{ item.id }}</a></td>
+      <td>${{ item.amount_paid }}</td>
+      <td>{{ item.email }}</td>
+      <td>{{ item.date_ordered }}</td>
     </tr>
     {% endfor %}
   </tbody>
