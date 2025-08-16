@@ -5,6 +5,7 @@ from payment.models import ShippingAddress, Order, OrderItem
 from django.contrib import messages
 from django.contrib.auth.models import User
 from store.models import Product
+import datetime
 
 
 def orders(request, pk):
@@ -14,6 +15,26 @@ def orders(request, pk):
 
         #Get the order items
         items = OrderItem.objects.filter(order=pk)
+
+        if request.POST:
+            status = request.POST['shipping_status']
+            # Check if true or false
+            if status == "true":
+                # Get the order
+                order = Order.objects.filter(id=pk)
+                # Update the status
+                now = datetime.datetime.now()
+                order.update(shipped=True, date_shipped=now)
+                messages.success(request, "Shipping Status Updated")
+                return redirect('shipped_dash')
+            else:
+                # Get the order
+                order = Order.objects.filter(id=pk)
+                # Update the status
+                order.update(shipped=False)
+                messages.success(request, "Shipping Status Updated")
+                return redirect('not_shipped_dash')
+
 
 
         return render(request, 'payment/order.html', {'order': order, 'items': items})
@@ -26,6 +47,18 @@ def not_shipped_dash(request):
 
     if request.user.is_authenticated and request.user.is_superuser:
         orders = Order.objects.filter(shipped=False)
+        if request.POST:
+            status = request.POST['shipping_status']
+            num = request.POST['num']
+            # Gt the order explicitly
+            order = Order.objects.filter(id=num)
+            # Grab Date and time
+            now = datetime.datetime.now()
+            # Update order
+            order.update(shipped=True, date_shipped=now)
+            # redirect 
+            messages.success(request, "Shipping Status Updated")
+            return redirect('shipped_dash')
 
         return render(request, "payment/not_shipped_dash.html", {'orders': orders})
     else:
@@ -38,6 +71,21 @@ def shipped_dash(request):
     
     if request.user.is_authenticated and request.user.is_superuser:
         orders = Order.objects.filter(shipped=True)
+
+        if request.POST:
+            status = request.POST['shipping_status']
+            num = request.POST['num']
+            # Get the order explicitly
+            order = Order.objects.filter(id=num)
+            # Grab Date and time
+            now = datetime.datetime.now()
+            # Update order
+            order.update(shipped=False)
+            # redirect 
+            messages.success(request, "Shipping Status Updated")
+            return redirect('not_shipped_dash')
+
+
         return render(request, "payment/shipped_dash.html", {'orders': orders})
     else:
         messages.success(request, "Access Denied")
