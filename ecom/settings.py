@@ -30,8 +30,8 @@ SECRET_KEY = 'django-insecure-)vle&8ao=_9!7^j6%77y--kjtx9$61v9$!2+dodguw%x^pk!*j
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['django-ecom-store-production-6a01.up.railway.app', 'https://django-ecom-store-production-6a01.up.railway.app']
-CSRF_TRUSTED_ORIGINS = ['http://django-ecom-store-production-6a01.up.railway.app', 'https://django-ecom-store-production-6a01.up.railway.app']
+ALLOWED_HOSTS = ['https://aura.tzg7vjgi.up.railway.app', 'aura.tzg7vjgi.up.railway.app', 'aura.pitech.ug', 'http://aura.pitech.ug/', 'django-ecom-store-production-6a01.up.railway.app', 'https://django-ecom-store-production-6a01.up.railway.app']
+CSRF_TRUSTED_ORIGINS = ['https://tzg7vjgi.up.railway.app', 'https://aura.tzg7vjgi.up.railway.app', 'https://aura.pitech.ug', 'http://django-ecom-store-production-6a01.up.railway.app', 'https://django-ecom-store-production-6a01.up.railway.app']
 
 
 # Application definition
