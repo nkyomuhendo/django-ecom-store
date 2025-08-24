@@ -253,12 +253,12 @@ def billing_info(request):
             # Get The Billing Form
 
             billing_form = PaymentForm()
-            return render(request, "payment/billing_info.html", {'paypal_form': paypal_form, "cart_products": cart_products, "quantities":quantities, "totals": totals, "shipping_info": request.POST, 'billing_form': billing_form, })
+            return render(request, "payment/billing_info.html", {"paypal_form": paypal_form, "cart_products": cart_products, "quantities":quantities, "totals": totals, "shipping_info": request.POST, "billing_form": billing_form, })
         else:
             #Not logged in
             # Get The Billing Form
             billing_form = PaymentForm()
-            return render(request, "'paypal_form': paypal_form, payment/billing_info.html", {"cart_products": cart_products, "quantities":quantities, "totals": totals, "shipping_info": request.POST, 'billing_form': billing_form, })
+            return render(request, "payment/billing_info.html", { "paypal_form": paypal_form, "cart_products": cart_products, "quantities":quantities, "totals": totals, "shipping_info": request.POST, "billing_form": billing_form, })
 
     else:
         messages.success(request, "Access Denied, this will be logged...!!")
