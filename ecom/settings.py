@@ -20,7 +20,12 @@ import os
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Load our environmental variables
-# load_dotenv()
+
+from dotenv import load_dotenv
+load_dotenv()
+
+# Password for local environment
+DB_PASSWORD_JE = os.environ.get('DB_PASSWORD_JE')
 
 # DB password 
 # DB_PASSWORD_JE = os.environ['DB_PASSWORD_JE']
@@ -34,8 +39,8 @@ SECRET_KEY = 'django-insecure-)vle&8ao=_9!7^j6%77y--kjtx9$61v9$!2+dodguw%x^pk!*j
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['https://han7wlwb.up.railway.app', 'aura.pitech.co.ug', 'http://aura.pitech.co.ug/', 'django-ecom-store-production-6a01.up.railway.app', 'https://django-ecom-store-production-6a01.up.railway.app']
-CSRF_TRUSTED_ORIGINS = [ 'https://han7wlwb.up.railway.app', 'https://aura.pitech.co.ug', 'http://django-ecom-store-production-6a01.up.railway.app', 'https://django-ecom-store-production-6a01.up.railway.app']
+ALLOWED_HOSTS = ['https://han7wlwb.up.railway.app', 'aura.pitech.co.ug', 'http://aura.pitech.co.ug/', 'django-ecom-store-production-6a01.up.railway.app', 'https://django-ecom-store-production-6a01.up.railway.app', 'localhost', '0a684a60c421.ngrok-free.app']
+CSRF_TRUSTED_ORIGINS = [ 'https://han7wlwb.up.railway.app', 'https://aura.pitech.co.ug', 'http://django-ecom-store-production-6a01.up.railway.app', 'https://django-ecom-store-production-6a01.up.railway.app', 'https://0a684a60c421.ngrok-free.app']
 
 
 # Application definition
