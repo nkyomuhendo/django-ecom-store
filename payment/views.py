@@ -226,7 +226,7 @@ def billing_info(request):
         my_shipping = request.POST
         request.session['my_shipping'] = my_shipping
 
-# Gather Order Info
+# Gather Order Info - test1
         full_name = my_shipping['shipping_full_name']
         email = my_shipping['shipping_email']
       
