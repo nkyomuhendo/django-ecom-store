@@ -26,5 +26,5 @@ jobs:
           key: ${{ secrets.PROD_SSH_KEY }}
           port: 10222
           script: |
-            # Execute the hardened, root-owned deployment wrapper or script
+            # Execute the hardened, root-owned deployment wrapper or script test r2
             sudo /usr/local/bin/update-app03.sh
