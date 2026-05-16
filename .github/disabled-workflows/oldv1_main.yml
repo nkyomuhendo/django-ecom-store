@@ -1,0 +1,94 @@
+name: Pi Django Ecom Single Vendor Platform CI/CD Pipeline
+
+# Trigger the workflow on pushes to the main branch
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    name: Build & Run Test Suite
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Create Mock Environment File
+        run: |
+          echo "DB_NAME=hotspot_db" >> .env
+          echo "DB_USER=test_user" >> .env
+          echo "DB_PASSWORD=test_pass" >> .env   # <--- FIXED: Was DB_PASS
+          echo "DB_HOST=db" >> .env              # <--- ADDED: To clear the host warning
+          echo "DB_PORT=5432" >> .env
+          echo "SECRET_KEY=m0ck-tulpnt-key-9nl4b8g586rpzaqm8ndh=" >> .env
+          echo "DEBUG=True" >> .env
+
+          # Official PostgreSQL container required variables
+          echo "POSTGRES_DB=hotspot_db" >> .env
+          echo "POSTGRES_USER=test_user" >> .env
+          echo "POSTGRES_PASSWORD=test_pass" >> .env
+          # ADD THE MISSING DOMAIN VARIABLES HERE:
+          echo "MAIN_DOMAIN=prohotspots.com" >> .env
+          echo "BASE_DOMAIN=prohotspots.com" >> .env
+          # ADD THE EMAIL VARIABLES HERE:
+          echo "EMAIL_HOST_USER=dummy@example.com" >> .env
+          echo "EMAIL_HOST_PASSWORD=dummypassword" >> .env
+          echo "ENCRYPTION_KEY=cFpS_0q-jR_Yw7Zz8o1T-L3mXv5dF2Q9A6hN_VbKcE0=" >> .env          
+
+      - name: Start Docker Containers
+        # run: docker compose up -d --build
+        run: docker compose up -d --build web db redis
+      
+      # Adding this temporarily if it fails again to see the exact DB error logs
+      - name: Debug DB Crash
+        if: failure()
+        run: docker compose logs db
+
+      - name: Wait for PostgreSQL to be Ready
+        # This will ping the db container until it responds, timing out after 30 seconds
+        run: |
+          echo "Waiting for PostgreSQL..."
+          timeout 30s bash -c 'until docker compose exec -T db pg_isready -U test_user -d hotspot_db; do sleep 2; done'
+          echo "PostgreSQL is ready!"
+
+      - name: Run Django Tests
+        run: |
+          # Generate the static files using the basic storage engine to avoid WhiteNoise compression errors
+          docker compose exec -e STATICFILES_STORAGE=django.contrib.staticfiles.storage.StaticFilesStorage -T web python manage.py collectstatic --noinput -v 0
+          
+          # Run the test suite
+          docker compose exec -e ENCRYPTION_KEY="cFpS_0q-jR_Yw7Zz8o1T-L3mXv5dF2Q9A6hN_VbKcE0=" -e EMAIL_HOST_USER=dummy@example.com -e EMAIL_HOST_PASSWORD=dummypassword -e DB_PORT=5432 -e MAIN_DOMAIN=prohotspots.com -e BASE_DOMAIN=prohotspots.com -T web python manage.py test apps.tenants
+
+      # - name: Run Django Tests
+      #   run: |
+      #     # Generate the static manifest so templates don't crash during rendering
+      #     docker compose exec -T web python manage.py collectstatic --noinput
+          
+      #     # Run the test suite
+      #     docker compose exec -e ENCRYPTION_KEY="cFpS_0q-jR_Yw7Zz8o1T-L3mXv5dF2Q9A6hN_VbKcE0=" -e EMAIL_HOST_USER=dummy@example.com -e EMAIL_HOST_PASSWORD=dummypassword -e DB_PORT=5432 -e MAIN_DOMAIN=prohotspots.com -e BASE_DOMAIN=prohotspots.com -T web python manage.py test apps.tenants
+
+      - name: Tear Down Docker Stack
+        if: always()
+        run: docker compose down -v
+
+  deploy:
+    environment: test-pro
+    name: Deploy to Production
+    needs: test
+    runs-on: ubuntu-latest
+    # CRITICAL: Only trigger deployment if the push/merge was to the main branch
+    if: github.ref == 'refs/heads/main' 
+    
+    steps:
+      - name: Execute Deployment via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.PROD_SSH_HOST }}
+          username: ${{ secrets.PROD_SSH_USER }}
+          key: ${{ secrets.PROD_SSH_KEY }}
+          port: 10222
+          script: |
+            # Execute the hardened, root-owned deployment wrapper or script
+            sudo /usr/local/bin/update-app03.sh

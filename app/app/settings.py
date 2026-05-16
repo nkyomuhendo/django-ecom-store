@@ -33,14 +33,38 @@ DB_PASSWORD_JE = os.environ.get('DB_PASSWORD_JE')
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-)vle&8ao=_9!7^j6%77y--kjtx9$61v9$!2+dodguw%x^pk!*j'
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# DEBUG = True
+# DEBUG = bool(int(os.environ.get('DEBUG', 0)))
 
-ALLOWED_HOSTS = ['https://han7wlwb.up.railway.app', 'aura.pitech.co.ug', 'http://aura.pitech.co.ug/', 'django-ecom-store-production-6a01.up.railway.app', 'https://django-ecom-store-production-6a01.up.railway.app', 'localhost', '0a684a60c421.ngrok-free.app']
-CSRF_TRUSTED_ORIGINS = [ 'https://han7wlwb.up.railway.app', 'https://aura.pitech.co.ug', 'http://django-ecom-store-production-6a01.up.railway.app', 'https://django-ecom-store-production-6a01.up.railway.app', 'https://0a684a60c421.ngrok-free.app']
+DEBUG = str(os.environ.get('DEBUG')) == "1"
+
+
+# ALLOWED_HOSTS_ENV = os.environ.get('ALLOWED_HOSTS_ENV')
+# # print("Allowed Hosts Env: ", ALLOWED_HOSTS_ENV)
+
+# ALLOWED_HOSTS = []
+# if ALLOWED_HOSTS_ENV:
+#     ALLOWED_HOSTS.extend(ALLOWED_HOSTS_ENV.split(','))
+
+
+## Option1 - Workable but slighly Robust Dealing With Allowed Hosts
+ALLOWED_HOSTS_ENV = os.environ.get('ALLOWED_HOSTS_ENV')
+
+ALLOWED_HOSTS = []
+if ALLOWED_HOSTS_ENV:
+    ALLOWED_HOSTS.extend([host.strip() for host in ALLOWED_HOSTS_ENV.split(',')])
+
+# # SECURITY WARNING: keep the secret key used in production secret!
+# SECRET_KEY = 'django-insecure-)vle&8ao=_9!7^j6%77y--kjtx9$61v9$!2+dodguw%x^pk!*j'
+
+# # SECURITY WARNING: don't run with debug turned on in production!
+# DEBUG = True
+
+# ALLOWED_HOSTS = ['https://han7wlwb.up.railway.app', 'aura.pitech.co.ug', 'http://aura.pitech.co.ug/', 'django-ecom-store-production-6a01.up.railway.app', 'https://django-ecom-store-production-6a01.up.railway.app', 'localhost', '0a684a60c421.ngrok-free.app']
+# CSRF_TRUSTED_ORIGINS = [ 'https://han7wlwb.up.railway.app', 'https://aura.pitech.co.ug', 'http://django-ecom-store-production-6a01.up.railway.app', 'https://django-ecom-store-production-6a01.up.railway.app', 'https://0a684a60c421.ngrok-free.app']
 
 
 # Application definition
@@ -94,20 +118,56 @@ WSGI_APPLICATION = 'app.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         # 'ENGINE': 'django.db.backends.sqlite3',
+#         # 'NAME': BASE_DIR / 'db.sqlite3',
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': os.environ['DB_NAME'],
+#         'USER': os.environ['DB_USER'],
+#         'PASSWORD': os.environ['DB_PASSWORD_JE'],
+#         # 'HOST': 'postgres.railway.internal',
+#         'HOST': os.environ['DB_HOST'],
+#         'PORT': os.environ['DB_PORT'],
+
+#     }
+# }
+
+
 DATABASES = {
     'default': {
-        # 'ENGINE': 'django.db.backends.sqlite3',
-        # 'NAME': BASE_DIR / 'db.sqlite3',
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ['DB_NAME'],
-        'USER': os.environ['DB_USER'],
-        'PASSWORD': os.environ['DB_PASSWORD_JE'],
-        # 'HOST': 'postgres.railway.internal',
-        'HOST': os.environ['DB_HOST'],
-        'PORT': os.environ['DB_PORT'],
-
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+DB_USERNAME = os.environ.get("POSTGRES_USER")
+DB_PASSWORD = os.environ.get("POSTGRES_PASSWORD")
+DB_DATABASE = os.environ.get("POSTGRES_DB")
+DB_HOST = os.environ.get("POSTGRES_HOST")
+DB_PORT = os.environ.get("POSTGRES_PORT")
+
+DB_IS_AVAIL = all([
+    DB_USERNAME,
+    DB_PASSWORD,
+    DB_DATABASE,
+    DB_HOST,
+    DB_PORT
+])
+
+POSTGRES_READY= str(os.environ.get('POSTGRES_READY')) == "1"
+
+if DB_IS_AVAIL and POSTGRES_READY:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": DB_DATABASE,
+            "USER": DB_USERNAME,
+            "PASSWORD": DB_PASSWORD,
+            "HOST": DB_HOST,
+            "PORT": DB_PORT,
+        }
+    }
 
 
 # Password validation
@@ -144,15 +204,15 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
+# STATIC_URL = 'static/'
 STATICFILES_DIRS = ['static/']
 
 # White noise static stuff
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+# STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-MEDIA_URL = 'media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# MEDIA_URL = 'media/'
+# MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -165,3 +225,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 PAYPAL_TEST = True
 
 PAYPAL_RECEIVER_EMAIL = 'business@pitest.com' # bUSINESS SANDBOX ACCOUNT
+
+
+
+#Custom Static and Media file URLs for container handling
+
+STATIC_URL = '/static/static/'
+MEDIA_URL = '/static/media/'
+
+STATIC_ROOT = '/vol/web/static'
+MEDIA_ROOT = '/vol/web/media'

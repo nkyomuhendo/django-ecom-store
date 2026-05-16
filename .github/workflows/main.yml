@@ -1,0 +1,30 @@
+name: Pi Django Ecom Single Vendor Platform CI/CD Pipeline
+
+# Trigger the workflow on pushes to the main branch
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+
+  deploy:
+    environment: ecom-test-pro
+    name: Deploy to Production
+    # needs: test
+    runs-on: ubuntu-latest
+    # CRITICAL: Only trigger deployment if the push/merge was to the main branch
+    if: github.ref == 'refs/heads/main' 
+    
+    steps:
+      - name: Execute Deployment via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.PROD_SSH_HOST }}
+          username: ${{ secrets.PROD_SSH_USER }}
+          key: ${{ secrets.PROD_SSH_KEY }}
+          port: 10222
+          script: |
+            # Execute the hardened, root-owned deployment wrapper or script
+            sudo /usr/local/bin/update-app03.sh
