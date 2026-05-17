@@ -8,8 +8,10 @@ COPY ./requirements.txt /requirements.txt
 
 # 1. Install dependencies, build packages, and clean up in one layer
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        # Permanent runtime dependency
+        # Permanent runtime dependencies
         libpq5 \
+        netcat-openbsd \
+        libexpat1 \
         # Temporary build dependencies (needed for uWSGI)
         build-essential \
         python3-dev \
