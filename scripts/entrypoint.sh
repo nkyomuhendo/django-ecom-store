@@ -7,8 +7,14 @@ SUPERUSER_EMAIL=${DJANGO_SUPERUSER_EMAIL:-"hello@pitech.co.ug"}
 cd /app/
 
 
+# echo "Waiting for PostgreSQL..."
+# while ! nc -z $DB_HOST $DB_PORT; do
+#   sleep 0.1
+# done
+# echo "PostgreSQL started"
+
 echo "Waiting for PostgreSQL..."
-while ! nc -z $DB_HOST $DB_PORT; do
+while ! /opt/venv/bin/python -c "import socket; socket.create_connection(('$DB_HOST', $DB_PORT))" 2>/dev/null; do
   sleep 0.1
 done
 echo "PostgreSQL started"
