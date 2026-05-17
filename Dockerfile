@@ -1,22 +1,25 @@
-FROM python:3.12-alpine
+FROM python:3.12-slim
 
-ENV PATH="/scripts:${PATH}"
+# Note: I added /opt/venv/bin to the PATH so you don't have to type 
+# the full path to run python, pip, gunicorn, or uwsgi.
+ENV PATH="/scripts:/opt/venv/bin:${PATH}"
 
 COPY ./requirements.txt /requirements.txt
 
-# 1. Install permanent runtime dependencies (libpq)
-RUN apk add --update --no-cache libpq
-
-# 2. Install temporary build dependencies under .tmp
-RUN apk add --update --no-cache --virtual .tmp gcc libc-dev python3-dev musl-dev postgresql-dev linux-headers
-
-RUN python3 -m venv /opt/venv
-
-RUN /opt/venv/bin/pip install pip --upgrade && \
-    /opt/venv/bin/pip install -r requirements.txt
-
-# 3. Clean up build dependencies (libpq will remain safe)
-RUN apk del .tmp
+# 1. Install dependencies, build packages, and clean up in one layer
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        # Permanent runtime dependency
+        libpq5 \
+        # Temporary build dependencies (needed for uWSGI)
+        build-essential \
+        python3-dev \
+    # Create venv and install python packages
+    && python3 -m venv /opt/venv \
+    && pip install pip --upgrade \
+    && pip install -r /requirements.txt \
+    # Clean up build dependencies to keep the image small
+    && apt-get purge -y --auto-remove build-essential python3-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir /app
 
@@ -29,7 +32,9 @@ RUN chmod +x /scripts/*
 RUN mkdir -p /vol/web/media
 RUN mkdir -p /vol/web/static
 
-RUN adduser -D user
+# 2. Add user (Debian syntax instead of Alpine's 'adduser -D')
+RUN adduser --disabled-password --no-create-home user
+
 RUN chown -R user:user /vol
 RUN chmod -R 755 /vol/web
 RUN chown -R user:user /app/
