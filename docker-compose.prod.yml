@@ -16,6 +16,7 @@ services:
       - dj_ecom_nw-prod
     # command: sh -c "chmod +x /scripts/migrate.sh && sh /scripts/migrate.sh && sh /scripts/entrypoint.sh"
     command: sh -c "/scripts/entrypoint.sh"
+    restart: unless-stopped
 
   proxy:
     build:
@@ -50,6 +51,7 @@ services:
       - web_proxy
     depends_on:
       - ecom_web_app
+    restart: unless-stopped
 
   postgres_db:
     image: postgres:17
@@ -61,6 +63,7 @@ services:
       - dj_ecom_nw-prod
     volumes:
       - postgres_data:/var/lib/postgresql/data/
+    restart: unless-stopped
 
 networks:
   web_proxy:
