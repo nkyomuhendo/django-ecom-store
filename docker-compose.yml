@@ -14,6 +14,7 @@ services:
       - ./.env
     # command: sh -c "chmod +x /scripts/migrate.sh && sh /scripts/migrate.sh && sh /scripts/entrypoint.sh"
     command: sh -c "/scripts/entrypoint.sh"
+    restart: unless-stopped
 
   proxy:
     build:
@@ -25,6 +26,7 @@ services:
       # - "443:443"
     depends_on:
       - ecom_web_app
+    restart: unless-stopped
 
   postgres_db:
     image: postgres:17
@@ -34,6 +36,7 @@ services:
       - 5432
     volumes:
       - postgres_data:/var/lib/postgresql/data/
+    restart: unless-stopped
 
 volumes:
   static_data:
