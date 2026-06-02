@@ -1,7 +1,7 @@
 services:
   ecom_web_app:
     depends_on:
-      - postgres_db
+      - shared-postgres
     build:
       context: .
     image: registry.digitalocean.com/nix-ecom-rep/ecomwebapp:latest
